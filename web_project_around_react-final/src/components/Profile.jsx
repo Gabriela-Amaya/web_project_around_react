@@ -1,4 +1,4 @@
-function Profile({ user, onEditProfile, onEditAvatar, onAddPlace }) {
+function Profile({ user, onEditProfile, onAddPlace }) {
   return (
     <div className="profile">
       <section className="profile__image">
@@ -12,7 +12,6 @@ function Profile({ user, onEditProfile, onEditAvatar, onAddPlace }) {
           className="profile__avatar-edit"
           type="button"
           aria-label="Editar foto de perfil"
-          onClick={onEditAvatar}
         />
       </section>
 

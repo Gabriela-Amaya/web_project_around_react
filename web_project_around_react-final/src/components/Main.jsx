@@ -5,7 +5,6 @@ function Main({
   user,
   cards,
   onEditProfile,
-  onEditAvatar,
   onAddPlace,
   onCardClick,
   onDeleteCard,
@@ -15,7 +14,6 @@ function Main({
       <Profile
         user={user}
         onEditProfile={onEditProfile}
-        onEditAvatar={onEditAvatar}
         onAddPlace={onAddPlace}
       />
 

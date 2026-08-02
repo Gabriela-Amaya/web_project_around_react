@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import avatar from "./images/image.jpg";
+
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Footer from "./components/Footer";
 import EditProfilePopup from "./components/EditProfilePopup";
-import EditAvatarPopup from "./components/EditAvatarPopup";
 import AddPlacePopup from "./components/AddPlacePopup";
 import ImagePopup from "./components/ImagePopup";
 
@@ -12,7 +12,7 @@ function App() {
   const [user, setUser] = useState({
     name: "Jacques Cousteau",
     about: "Explorador",
-    avatar,
+    avatar: avatar,
   });
 
   const [cards, setCards] = useState([
@@ -50,18 +50,12 @@ function App() {
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
 
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState(null);
 
   function handleOpenEditProfilePopup() {
     setIsEditProfilePopupOpen(true);
-  }
-
-  function handleOpenEditAvatarPopup() {
-    setIsEditAvatarPopupOpen(true);
   }
 
   function handleOpenAddPlacePopup() {
@@ -74,7 +68,6 @@ function App() {
 
   function handleClosePopups() {
     setIsEditProfilePopupOpen(false);
-    setIsEditAvatarPopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard(null);
   }
@@ -84,15 +77,6 @@ function App() {
       ...currentUser,
       name: data.name,
       about: data.about,
-    }));
-
-    handleClosePopups();
-  }
-
-  function handleUpdateAvatar(data) {
-    setUser((currentUser) => ({
-      ...currentUser,
-      avatar: data.avatar,
     }));
 
     handleClosePopups();
@@ -138,7 +122,6 @@ function App() {
         user={user}
         cards={cards}
         onEditProfile={handleOpenEditProfilePopup}
-        onEditAvatar={handleOpenEditAvatarPopup}
         onAddPlace={handleOpenAddPlacePopup}
         onCardClick={handleCardClick}
         onDeleteCard={handleDeleteCard}
@@ -151,12 +134,6 @@ function App() {
         isOpen={isEditProfilePopupOpen}
         onClose={handleClosePopups}
         onUpdateUser={handleUpdateUser}
-      />
-
-      <EditAvatarPopup
-        isOpen={isEditAvatarPopupOpen}
-        onClose={handleClosePopups}
-        onUpdateAvatar={handleUpdateAvatar}
       />
 
       <AddPlacePopup
