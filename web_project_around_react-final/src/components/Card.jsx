@@ -1,18 +1,14 @@
-import { useState } from "react";
-
-function Card({ card, onCardClick, onDeleteCard }) {
-  const [isLiked, setIsLiked] = useState(false);
-
+function Card({ card, isLiked, onCardClick, onCardLike, onCardDelete }) {
   function handleImageClick() {
     onCardClick(card);
   }
 
-  function handleDeleteClick() {
-    onDeleteCard(card.id);
+  function handleLikeClick() {
+    onCardLike(card);
   }
 
-  function handleLikeClick() {
-    setIsLiked(!isLiked);
+  function handleDeleteClick() {
+    onCardDelete(card);
   }
 
   return (

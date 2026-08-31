@@ -1,15 +1,17 @@
 import Card from "./Card";
 
-function Gallery({ cards, onCardClick, onDeleteCard }) {
+function Gallery({ cards, onCardClick, onCardLike, onCardDelete }) {
   return (
     <section className="gallery">
       <ul className="gallery__photos">
         {cards.map((card) => (
           <Card
-            key={card.id}
+            key={card._id}
             card={card}
+            isLiked={card.isLiked}
             onCardClick={onCardClick}
-            onDeleteCard={onDeleteCard}
+            onCardLike={onCardLike}
+            onCardDelete={onCardDelete}
           />
         ))}
       </ul>

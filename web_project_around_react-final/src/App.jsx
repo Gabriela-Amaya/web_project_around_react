@@ -1,61 +1,56 @@
 import { useEffect, useState } from "react";
-import avatar from "./images/image.jpg";
 
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Footer from "./components/Footer";
 import EditProfilePopup from "./components/EditProfilePopup";
+import EditAvatarPopup from "./components/EditAvatarPopup";
 import AddPlacePopup from "./components/AddPlacePopup";
 import ImagePopup from "./components/ImagePopup";
 
-function App() {
-  const [user, setUser] = useState({
-    name: "Jacques Cousteau",
-    about: "Explorador",
-    avatar: avatar,
-  });
+import api from "./utils/api";
+import CurrentUserContext from "./contexts/CurrentUserContext";
 
-  const [cards, setCards] = useState([
-    {
-      id: 1,
-      name: "Valle de Yosemite",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/yosemite.jpg",
-    },
-    {
-      id: 2,
-      name: "Lago Louise",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/lake-louise.jpg",
-    },
-    {
-      id: 3,
-      name: "Montañas Calvas",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/bald-mountains.jpg",
-    },
-    {
-      id: 4,
-      name: "Latemar",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/latemar.jpg",
-    },
-    {
-      id: 5,
-      name: "Parque Nacional de la Vanoise",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/vanoise.jpg",
-    },
-    {
-      id: 6,
-      name: "Lago di Braies",
-      link: "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/around-project/lago.jpg",
-    },
-  ]);
+function App() {
+  const [currentUser, setCurrentUser] = useState({});
+
+  const [cards, setCards] = useState([]);
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
 
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState(null);
 
+  // Obtener usuario y tarjetas desde la API
+  useEffect(() => {
+    api
+      .getUserInfo()
+      .then((userData) => {
+        setCurrentUser(userData);
+      })
+      .catch((error) => {
+        console.error("Error al cargar el usuario:", error);
+      });
+
+    api
+      .getInitialCards()
+      .then((cardsData) => {
+        setCards(cardsData);
+      })
+      .catch((error) => {
+        console.error("Error al cargar las tarjetas:", error);
+      });
+  }, []);
+
   function handleOpenEditProfilePopup() {
     setIsEditProfilePopupOpen(true);
+  }
+
+  function handleOpenEditAvatarPopup() {
+    setIsEditAvatarPopupOpen(true);
   }
 
   function handleOpenAddPlacePopup() {
@@ -68,38 +63,84 @@ function App() {
 
   function handleClosePopups() {
     setIsEditProfilePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard(null);
   }
 
+  // Editar perfil con API
   function handleUpdateUser(data) {
-    setUser((currentUser) => ({
-      ...currentUser,
-      name: data.name,
-      about: data.about,
-    }));
-
-    handleClosePopups();
+    api
+      .editUserInfo(data)
+      .then((newUserData) => {
+        setCurrentUser(newUserData);
+        handleClosePopups();
+      })
+      .catch((error) => {
+        console.error("Error al actualizar el perfil:", error);
+      });
   }
 
+  // Editar avatar con API
+  function handleUpdateAvatar(data) {
+    api
+      .updateAvatar(data.avatar)
+      .then((newUserData) => {
+        setCurrentUser(newUserData);
+        handleClosePopups();
+      })
+      .catch((error) => {
+        console.error("Error al actualizar el avatar:", error);
+      });
+  }
+
+  // Crear tarjeta con API
   function handleAddPlace(data) {
-    const newCard = {
-      id: Date.now(),
-      name: data.name,
-      link: data.link,
-    };
+    api
+      .addCard(data)
+      .then((newCard) => {
+        setCards((currentCards) => [newCard, ...currentCards]);
 
-    setCards((currentCards) => [newCard, ...currentCards]);
-
-    handleClosePopups();
+        handleClosePopups();
+      })
+      .catch((error) => {
+        console.error("Error al agregar la tarjeta:", error);
+      });
   }
 
-  function handleDeleteCard(cardId) {
-    setCards((currentCards) =>
-      currentCards.filter((card) => card.id !== cardId),
-    );
+  // Like / dislike con API
+  function handleCardLike(card) {
+    const isLiked = card.isLiked;
+
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        setCards((currentCards) =>
+          currentCards.map((currentCard) =>
+            currentCard._id === card._id ? newCard : currentCard,
+          ),
+        );
+      })
+      .catch((error) => {
+        console.error("Error al cambiar el like:", error);
+      });
   }
 
+  // Eliminar tarjeta con API
+  function handleCardDelete(card) {
+    api
+      .deleteCard(card._id)
+      .then(() => {
+        setCards((currentCards) =>
+          currentCards.filter((currentCard) => currentCard._id !== card._id),
+        );
+      })
+      .catch((error) => {
+        console.error("Error al eliminar la tarjeta:", error);
+      });
+  }
+
+  // Cerrar popups con Escape
   useEffect(() => {
     function handleEscapeKey(event) {
       if (event.key === "Escape") {
@@ -115,35 +156,47 @@ function App() {
   }, []);
 
   return (
-    <div className="page">
-      <Header />
+    <CurrentUserContext.Provider
+      value={{
+        currentUser,
+        handleUpdateUser,
+        handleUpdateAvatar,
+      }}
+    >
+      <div className="page">
+        <Header />
 
-      <Main
-        user={user}
-        cards={cards}
-        onEditProfile={handleOpenEditProfilePopup}
-        onAddPlace={handleOpenAddPlacePopup}
-        onCardClick={handleCardClick}
-        onDeleteCard={handleDeleteCard}
-      />
+        <Main
+          cards={cards}
+          onEditProfile={handleOpenEditProfilePopup}
+          onEditAvatar={handleOpenEditAvatarPopup}
+          onAddPlace={handleOpenAddPlacePopup}
+          onCardClick={handleCardClick}
+          onCardLike={handleCardLike}
+          onCardDelete={handleCardDelete}
+        />
 
-      <Footer />
+        <Footer />
 
-      <EditProfilePopup
-        user={user}
-        isOpen={isEditProfilePopupOpen}
-        onClose={handleClosePopups}
-        onUpdateUser={handleUpdateUser}
-      />
+        <EditProfilePopup
+          isOpen={isEditProfilePopupOpen}
+          onClose={handleClosePopups}
+        />
 
-      <AddPlacePopup
-        isOpen={isAddPlacePopupOpen}
-        onClose={handleClosePopups}
-        onAddPlace={handleAddPlace}
-      />
+        <EditAvatarPopup
+          isOpen={isEditAvatarPopupOpen}
+          onClose={handleClosePopups}
+        />
 
-      <ImagePopup card={selectedCard} onClose={handleClosePopups} />
-    </div>
+        <AddPlacePopup
+          isOpen={isAddPlacePopupOpen}
+          onClose={handleClosePopups}
+          onAddPlace={handleAddPlace}
+        />
+
+        <ImagePopup card={selectedCard} onClose={handleClosePopups} />
+      </div>
+    </CurrentUserContext.Provider>
   );
 }
 
