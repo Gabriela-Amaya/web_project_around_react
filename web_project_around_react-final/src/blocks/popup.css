@@ -206,6 +206,20 @@
   opacity: 0.6;
 }
 
+.popup__error {
+  display: block;
+  min-height: 16px;
+  margin-top: 5px;
+
+  color: #ff0000;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.popup__input_type_error {
+  border-bottom: 1px solid #ff0000;
+}
+
 /* Responsive */
 
 @media screen and (max-width: 620px) {

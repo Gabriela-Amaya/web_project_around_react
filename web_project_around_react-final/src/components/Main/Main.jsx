@@ -1,12 +1,12 @@
 import { useContext } from "react";
-import CurrentUserContext from "../contexts/CurrentUserContext";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
-import Profile from "./Profile";
-import Gallery from "./Gallery";
-import Popup from "./Popup";
-import EditProfile from "./EditProfile";
-import EditAvatar from "./EditAvatar";
-import NewCard from "./NewCard";
+import Profile from "../Profile/Profile";
+import Gallery from "../Gallery/Gallery";
+import Popup from "../Popup/Popup";
+import EditProfile from "../EditProfile/EditProfile";
+import EditAvatar from "../EditAvatar/EditAvatar";
+import NewCard from "../NewCard/NewCard";
 
 function Main({
   cards,
